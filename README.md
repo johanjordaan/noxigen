@@ -11,16 +11,16 @@ npd install -d
 
 Usage
 -----
-1 Define the domain classes in a js file using the provided types:
-    IntField
-    TextField
-    ArrayField
-2 Run generate on the above js file. The genartor will output the following:
-    A simple form for inputting the above text. With simple validation.
-    A set of javascript file for the frontend.
-    A set of javascript files for the backend.
-    A set of javascript interfaces to store the form in couchdb.
-3 Generation is controlled by the config file.
+1. Define the domain classes in a js file using the provided types:  
+    IntField  
+    TextField  
+    ArrayField  
+2. Run generate on the above js file. The genartor will output the following:  
+    A simple form for inputting the above text. With simple validation.  
+    A set of javascript file for the frontend.  
+    A set of javascript files for the backend.  
+    A set of javascript interfaces to store the form in couchdb.  
+3. Generation is controlled by the config file.  
 
 Pipeline
 -------------
