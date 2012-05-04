@@ -71,7 +71,7 @@ Meta-Model
 
 MIT License
 ===========
-Copyright (c) 20011-2012 whoatemydomain <admin@whoatemydomain.co.za>
+Copyright (c) 2012 whoatemydomain <admin@whoatemydomain.co.za>
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
