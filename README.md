@@ -31,33 +31,31 @@ project settings (User)                                     ^
 
 Meta-Model
 ------------
-`
-{ module_groups : {
-    module_group_names : ['g1'],
-    g1 : {
-      modules_names : ['m1'],
-      m1 : {
+    { module_groups : {
+        module_group_names : ['g1'],
+        g1 : {
+          modules_names : ['m1'],
+          m1 : {
+            class_names : ['c1'],
+            c1 : {
+            }
+          }
+        }
+      }
+      modules : {
+        modules_names : ['m1'],
+        m1 : {
+          class_names : ['c1'],
+          c1 : {
+          }
+        }
+      },
+      classes : {
         class_names : ['c1'],
         c1 : {
         }
       }
     }
-  }
-  modules : {
-    modules_names : ['m1'],
-    m1 : {
-      class_names : ['c1'],
-      c1 : {
-      }
-    }
-  },
-  classes : {
-    class_names : ['c1'],
-    c1 : {
-    }
-  }
-}
-`
 
 
 MIT License
