@@ -24,14 +24,25 @@ Usage
 
 Pipeline
 -------------
-modules (User)              -> Meta-Model construction -> Templating -> Results
-project settings (User)                                     ^
-                                                            |
-                                    template_settings (Express,Etc...) (Predefined or User)
+    module[1..n].js      settings.js
+         |                      |
+         |                      |
+         +-----------+----------+
+                     |                    template_configuration.js
+                     |                              |
+         meta model construction                    |
+                     |                              |
+                     |                              |
+                templating <------------------------+
+                     |
+                     |
+                  results
+                     
 
 Meta-Model
 ------------
-    { module_groups : {
+    { 
+      module_groups : {
         module_group_names : ['g1'],
         g1 : {
           modules_names : ['m1'],
