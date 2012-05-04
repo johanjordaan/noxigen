@@ -6,7 +6,7 @@ PLEASE CHECK BACK SOON THIS SITE IS UNDER CONSTRUCTION.
 
 Installing
 ----------
-npm install lazyforms
+npm install noxigen
 npd install -d
 
 Usage
