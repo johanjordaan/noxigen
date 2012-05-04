@@ -1,0 +1,16 @@
+{
+  "name"          : "noxigen",
+  "version"       : "0.0.0",
+  "description"   : "Awesome super secret goodness.",
+  "keywords"      : ["util", "functional", "server", "client", "browser"],
+  "url"           : "https://github.com/whoatemydomain/noxigen",
+  "repository"    : { "type": "git", "url": "git://github.com/whoatemydomain/noxigen.git" }
+  "author"        : "Johan Jordaan <johan@whoatemydomain.co.za>",
+  "contributors"  : [],
+  "dependencies"  : {
+    "ejs"         : "*",
+    "chai"        : "*"
+  },
+  "lib"           : ".",
+  "main"          : "noxigen.js"
+}
