@@ -1,7 +1,8 @@
 noxigen 
 =============
-
 PLEASE CHECK BACK SOON THIS SITE IS UNDER CONSTRUCTION. 
+
+The Tello board for this project can be found [here](https://trello.com/board/noxigen/4fa4c58c189db5797b1b3fe6)
 
 
 Installing

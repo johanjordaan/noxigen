@@ -24,12 +24,10 @@ render = function(template,params,destination) {
   fs.writeFileSync(destination,tr);
 }
 
-abort = function(str) {
+exports.abort = abort = function(str) {
   console.error(str);
   process.exit(1);
 }
-
-var usage = 'Usage ...';
 
 ///////////////////////////////////
 exports.validate_settings = validate_settings = function(settings) {
@@ -72,21 +70,4 @@ exports.build_meta_model = build_meta_model = function(settings) {
   
   return {modules:modules,classes:classes};
 } 
-
-
-exports.noxigen = noxigen = function(s) {
-  var settings = require(s);
-  validate_settings(settings);
-  var meta_model = build_meta_mode(settings);
-  //render(settings.module_templates[0].template,{module:{classes:classes}} ,settings.module_templates[0].destination);
-}
-
-if (!module.parent) {
-  console.log('Running ...');
-  var args = process.argv.slice(2)
-  if(args.length <= 0) {
-    abort(usage);
-  }
-  noxigen(args[0]);
-}
 
