@@ -1,6 +1,6 @@
 {
   "name"           : "noxigen",
-  "version"        : "0.0.0",
+  "version"        : "0.0.1",
   "description"    : "Awesome super secret goodness.",
   "keywords"       : ["util", "functional", "server", "client", "browser"],
   "url"            : "https://github.com/whoatemydomain/noxigen",
@@ -12,5 +12,6 @@
     "commander"    : "*"
   },
   "lib"            : ".",
-  "main"           : "noxigen.js"
+  "main"           : "noxigen.js",
+  "bin"            : { "noxigen": "./bin/noxigen.js" }
 }
