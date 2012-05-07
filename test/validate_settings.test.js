@@ -23,5 +23,4 @@ describe('validate_settings', function() {
     }).should.throw('variable [modules] should not be of type Array');
     done();
   })
-
 });

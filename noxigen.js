@@ -55,6 +55,7 @@ exports.build_meta_model = build_meta_model = function(settings) {
     var module_name = modules.module_names[mni];
     var settings_module = settings.modules[module_name];
     modules[module_name]= {};
+    modules[module_name].__name__= module_name;
     
     // Start processing all classes in the current module.
     //
@@ -65,6 +66,7 @@ exports.build_meta_model = build_meta_model = function(settings) {
       var c = new settings_module[class_name]();
       modules[module_name][class_name] = c;
       classes[class_name] = c;
+      classes[class_name].__name__ = class_name;
     }
   }
   
