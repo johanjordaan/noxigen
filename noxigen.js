@@ -40,6 +40,7 @@ exports.validate_settings = validate_settings = function(settings) {
 }
 
 exports.build_meta_model = build_meta_model = function(settings) {
+
   // Create the top level return values
   //
   var module_groups = {}
@@ -73,3 +74,35 @@ exports.build_meta_model = build_meta_model = function(settings) {
   return {modules:modules,classes:classes};
 } 
 
+exports.generate_templates = generate_templates = function(meta_model,settings,templates) {
+  // Render the main templates
+  //
+  for(var ti=0;ti<templates.main_templates.length;ti++) {
+    var template = templates.main_templates[ti];
+    console.log(template.template,template.destination);
+  }
+  
+  // Render the modules templates
+  //
+  for(var mni=0;mni<meta_model.modules.module_names.length;mni++) {
+    var module_name = meta_model.modules.module_names[mni];
+    console.log(module_name);
+    for(var ti=0;ti<templates.module_templates.length;ti++) {
+      var template = templates.module_templates[ti];
+      console.log(template.template,template.destination,ejs.render(template.destination,{module_name:module_name,settings:settings}));
+    }
+  }
+
+  // Render the class templates
+  //
+  for(var cni=0;cni<meta_model.classes.class_names.length;cni++) {
+    var class_name = meta_model.classes.class_names[cni];
+    console.log(class_name);
+    for(var ti=0;ti<templates.class_templates.length;ti++) {
+      var template = templates.class_templates[ti];
+      console.log(template.template,template.destination,ejs.render(template.destination,{class_name:class_name,settings:settings}));
+    }
+  }
+
+  
+}
