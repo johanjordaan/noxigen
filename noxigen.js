@@ -79,7 +79,8 @@ exports.generate_templates = generate_templates = function(meta_model,settings,t
   //
   for(var ti=0;ti<templates.main_templates.length;ti++) {
     var template = templates.main_templates[ti];
-    console.log(template.template,template.destination);
+    var parms = {settings:settings,meta_model:meta_model};
+    render(templates.base_path+'/'+template.template,parms,ejs.render(template.destination,parms));
   }
   
   // Render the modules templates
@@ -89,7 +90,9 @@ exports.generate_templates = generate_templates = function(meta_model,settings,t
     console.log(module_name);
     for(var ti=0;ti<templates.module_templates.length;ti++) {
       var template = templates.module_templates[ti];
-      console.log(template.template,template.destination,ejs.render(template.destination,{module_name:module_name,settings:settings}));
+      var module = meta_model.modules[module_name];
+      var parms = {settings:settings,meta_model:meta_model,module_name:module_name};
+      render(templates.base_path+'/'+template.template,parms,ejs.render(template.destination,parms));
     }
   }
 
@@ -100,9 +103,8 @@ exports.generate_templates = generate_templates = function(meta_model,settings,t
     console.log(class_name);
     for(var ti=0;ti<templates.class_templates.length;ti++) {
       var template = templates.class_templates[ti];
-      console.log(template.template,template.destination,ejs.render(template.destination,{class_name:class_name,settings:settings}));
+      var parms = {settings:settings,meta_model:meta_model,class_name:class_name};
+      render(templates.base_path+'/'+template.template,parms,ejs.render(template.destination,parms));
     }
   }
-
-  
 }

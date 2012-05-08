@@ -26,12 +26,13 @@ if(!path.existsSync(settings_file_fqp)) {
 
 // Run the generator
 //
-try {
+//try {
   var settings = require(settings_file_fqp);
   var templates = require('../templates/'+program.target);
+  templates.base_path = path.resolve(__dirname,'../templates',program.target);
   noxigen.validate_settings(settings);
   var meta_model = noxigen.build_meta_model(settings);
   noxigen.generate_templates(meta_model,settings,templates);  
-} catch(err) {
-  console.log(err);
-}
+//} catch(err) {
+//  console.log(err);
+//}

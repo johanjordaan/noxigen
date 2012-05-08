@@ -1,0 +1,5 @@
+<%= module_name %>
+<% var cur_module = meta_model.modules[module_name] -%>
+<% for(var i=0;i<cur_module.class_names.length;i++) { -%>
+  <%= cur_module[cur_module.class_names[i]].__name__ %>
+<% } -%>
