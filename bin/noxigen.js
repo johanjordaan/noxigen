@@ -1,5 +1,20 @@
 #!/usr/bin/env node
 
+/**
+ * Check if the given directory `path` is empty.
+ *
+ * @param {String} path
+ * @param {Function} fn
+ */
+
+function emptyDirectory(path, fn) {
+  fs.readdir(path, function(err, files){
+    if (err && 'ENOENT' != err.code) throw err;
+    fn(!files || !files.length);
+  });
+}
+
+
 // Import all the required modules
 //
 var path = require('path');
@@ -15,7 +30,7 @@ program
   .version(version)
   .option('-t, --target <n>','The target to generate for.')
   .parse(process.argv);
-  
+
 // Extract the command line arguments and validate
 //  
 var settings_file_fqp = path.resolve(program.args.shift() || '.');  
@@ -23,6 +38,7 @@ if(!path.existsSync(settings_file_fqp)) {
   console.log('Settings file ['+settings_file_fqp+'] does not exist');
   process.exit(1);
 }
+
 
 // Run the generator
 //
