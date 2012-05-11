@@ -25,11 +25,11 @@ var pkg = require('../package.json');
 var ejs = require('ejs');
 var os = require('os');
 
+var version = pkg.version;
 var eol = 'win32' == os.platform() ? '\r\n' : '\n'
 
 // Commands
 //
-var version = pkg.version;
 var settings_template = [
    '// Generated settings'
   ,'//'
@@ -42,17 +42,67 @@ var settings_template = [
   ,'}'
 ].join(eol);
 
+var modules_template = [
+  ,'module.exports = {'
+  ,'  noxigen_modules : {'
+  ,'    <% var module_keys = Object.keys(modules) -%>'
+  ,'    <% for(var i=0;i<module_keys.length;i++) { -%>'
+  ,'    <%= module_keys[i] %> : \'<%= modules[module_keys[i]]%>\','
+  ,'    <% } -%>'
+  ,'  },'
+  ,'}'
+].join(eol);
+
+var module_template = [
+  ,'var <%= module_name %> = module.exports = {'
+  ,'}'
+].join(eol);
+
+
 start_project = function(project_name) {
-  var p = path.join('.',project_name);
-  path.exists(p,function(exists) {
-    if(exists) {
-      console.log('[%s] already exists',project_name);
-    } else {
-      fs.mkdirSync(p);
-      fs.writeFileSync(path.join(p,'settings.js'),ejs.render(settings_template,{}));
-    }
+  var project_path = path.join('.',project_name);
+  path.exists(project_path,function(exists) {
+    if(exists) throw '['+project_name+'] already exists';
+    fs.mkdirSync(project_path);
+    fs.writeFileSync(path.join(project_path,'settings.js'),ejs.render(settings_template,{}));
+    var noxigen_path = path.join(project_path,'.noxigen');
+    fs.mkdirSync(noxigen_path);
+    fs.mkdirSync(path.join(project_path,'modules'));
   });  
 }
+
+// Todo : Add check for already existing modules
+add_module = function(module_name,location) {
+  if(typeof(location) == 'undefined')
+    location = path.join(process.env.PWD,'modules');
+  var noxigen_path = path.join(process.env.PWD,'.noxigen');
+  path.exists(noxigen_path,function(exists) {
+    if(!exists) throw 'This is not a noxigen project';
+    var noxigen_modules_fn = path.join(noxigen_path,'modules.js'); 
+    path.exists(noxigen_modules_fn,function(exists) {
+      
+      // Update the modules file
+      //
+      var m = { noxigen_modules : {} };
+      if(exists) m = require(noxigen_modules_fn);
+      m.noxigen_modules[module_name] = 'modules/'+module_name+'.js'
+      fs.writeFileSync(path.join('.noxigen','modules.js'),ejs.render(modules_template,{modules:m.noxigen_modules}));
+      
+      // Create the module if it doen not already exist
+      //
+      path.exists(path.join(location,module_name),function(exists) {
+        if(exists) return;
+        fs.writeFileSync(path.join(location,module_name+'.js'),ejs.render(module_template,{module_name:module_name}));
+      });    
+      
+    });
+  });
+}
+
+remove_module = function(module_name,force_delete) {
+  console.log('Removing --',module_name,'with',force_delete);
+}
+
 generate_project = function() {
   var p = path.join(process.env.PWD,'settings');
   console.log(p);
@@ -72,12 +122,22 @@ generate_project = function() {
 program
   .usage('[options] <settings>')
   .version(version)
-  .option('-t, --target <n>','The target to generate for.')
 
 program
   .command('startproject <project_name>')
   .description(' starts a new noxigen project')
   .action(start_project);
+
+program
+  .command('addmodule <module_name> [location]')
+  .description(' add a new module to the project')
+  .action(add_module);
+
+program
+  .command('removemodule <module_name>')
+  .description(' removes a module from the project')
+  .action(add_module);
+  
   
 program
   .command('generate')
@@ -85,26 +145,3 @@ program
   .action(generate_project);
 
 program.parse(process.argv);
-
-
-// Extract the command line arguments and validate
-//  
-//var settings_file_fqp = path.resolve(program.args.shift() || '.');  
-//if(!path.existsSync(settings_file_fqp)) {
-//  console.log('Settings file ['+settings_file_fqp+'] does not exist');
-//  process.exit(1);
-//}
-
-
-// Run the generator
-//
-//try {
-//  var settings = require(settings_file_fqp);
-//  var templates = require('../templates/'+program.target);
-//  templates.base_path = path.resolve(__dirname,'../templates',program.target);
-//  noxigen.validate_settings(settings);
-//  var meta_model = noxigen.build_meta_model(settings);
-//  noxigen.generate_templates(meta_model,settings,templates);  
-//} catch(err) {
-//  console.log(err);
-//}
