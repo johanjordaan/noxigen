@@ -41,6 +41,10 @@ exports.validate_settings = validate_settings = function(settings) {
 
 exports.build_meta_model = build_meta_model = function(settings) {
 
+  // First validate the settings
+  //
+  validate_settings(settings);
+
   // Create the top level return values
   //
   var module_groups = {}

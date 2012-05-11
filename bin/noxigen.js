@@ -1,20 +1,5 @@
 #!/usr/bin/env node
 
-/**
- * Check if the given directory `path` is empty.
- *
- * @param {String} path
- * @param {Function} fn
- */
-
-function emptyDirectory(path, fn) {
-  fs.readdir(path, function(err, files){
-    if (err && 'ENOENT' != err.code) throw err;
-    fn(!files || !files.length);
-  });
-}
-
-
 // Import all the required modules
 //
 var path = require('path');
@@ -31,30 +16,25 @@ var eol = 'win32' == os.platform() ? '\r\n' : '\n'
 // Commands
 //
 var settings_template = [
-   '// Generated settings'
-  ,'//'
-  ,''  
   ,'module.exports = {'
-  ,'  modules : {'
-  ,'  },'
-  ,'  templates : ['
-  ,'  ]'
+  ,'  templates : {'
+  ,'  }'
   ,'}'
 ].join(eol);
 
 var modules_template = [
   ,'module.exports = {'
   ,'  noxigen_modules : {'
-  ,'    <% var module_keys = Object.keys(modules) -%>'
-  ,'    <% for(var i=0;i<module_keys.length;i++) { -%>'
-  ,'    <%= module_keys[i] %> : \'<%= modules[module_keys[i]]%>\','
-  ,'    <% } -%>'
+  ,'<% var module_keys = Object.keys(modules) -%>'
+  ,'<% for(var i=0;i<module_keys.length;i++) { -%>'
+  ,'    <%= module_keys[i] %> : require(\'../<%= modules[module_keys[i]]%>\'),'
+  ,'<% } -%>'
   ,'  },'
   ,'}'
 ].join(eol);
 
 var module_template = [
-  ,'var <%= module_name %> = module.exports = {'
+  ,'var <%= module_name %> = module.exports.<%= module_name %> = function() {'
   ,'}'
 ].join(eol);
 
@@ -88,7 +68,7 @@ add_module = function(module_name,location) {
       m.noxigen_modules[module_name] = 'modules/'+module_name+'.js'
       fs.writeFileSync(path.join('.noxigen','modules.js'),ejs.render(modules_template,{modules:m.noxigen_modules}));
       
-      // Create the module if it doen not already exist
+      // Create the module if it does not already exist
       //
       path.exists(path.join(location,module_name),function(exists) {
         if(exists) return;
@@ -104,15 +84,31 @@ remove_module = function(module_name,force_delete) {
 }
 
 generate_project = function() {
-  var p = path.join(process.env.PWD,'settings');
-  console.log(p);
-  var settings = require(p);
-  var templates = require('../templates/debug/');
-  templates.base_path = path.resolve(__dirname,'../templates/debug');
-  templates.dest_path = process.env.PWD;
-  noxigen.validate_settings(settings);
+  // Include the settings file
+  //
+  var settings_fn = path.join(process.env.PWD,'settings.js');
+  var settings = require(settings_fn);
+  
+  // Expand the settings file with the modules files
+  //
+  var modules_fn = path.join(process.env.PWD,'.noxigen','modules.js');
+  settings.modules = require(modules_fn).noxigen_modules;
+    
+    
+  // Validate the settings and generate the meta-model  
+  //  
   var meta_model = noxigen.build_meta_model(settings);
-  noxigen.generate_templates(meta_model,settings,templates);  
+
+  // Process the templates settings
+  //
+  
+  //var templates = require('../templates/debug/');
+  //templates.base_path = path.resolve(__dirname,'../templates/debug');
+  //templates.dest_path = process.env.PWD;
+  
+  // Generate the templates using the meta-model
+  //
+  //noxigen.generate_templates(meta_model,settings,templates);  
 }
 
 
@@ -137,7 +133,6 @@ program
   .command('removemodule <module_name>')
   .description(' removes a module from the project')
   .action(add_module);
-  
   
 program
   .command('generate')
