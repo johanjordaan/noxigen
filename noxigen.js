@@ -78,37 +78,35 @@ exports.build_meta_model = build_meta_model = function(settings) {
   return {modules:modules,classes:classes};
 } 
 
-exports.generate_templates = generate_templates = function(meta_model,settings,templates) {
-  // Render the main templates
+exports.generate = generate = function(meta_model,settings,target) {
+  // Render the main target
   //
-  for(var ti=0;ti<templates.main_templates.length;ti++) {
-    var template = templates.main_templates[ti];
+  for(var ti=0;ti<target.main_templates.length;ti++) {
+    var template = target.main_templates[ti];
     var parms = {settings:settings,meta_model:meta_model};
-    render(templates.base_path+'/'+template.template,parms,ejs.render(templates.dest_path+'/'+template.destination,parms));
+    render(target.base_path+'/'+template.template,parms,ejs.render(target.dest_path+'/'+template.destination,parms));
   }
   
-  // Render the modules templates
+  // Render the modules target
   //
   for(var mni=0;mni<meta_model.modules.module_names.length;mni++) {
     var module_name = meta_model.modules.module_names[mni];
-    console.log(module_name);
-    for(var ti=0;ti<templates.module_templates.length;ti++) {
-      var template = templates.module_templates[ti];
+    for(var ti=0;ti<target.module_templates.length;ti++) {
+      var template = target.module_templates[ti];
       var module = meta_model.modules[module_name];
       var parms = {settings:settings,meta_model:meta_model,module_name:module_name};
-      render(templates.base_path+'/'+template.template,parms,ejs.render(templates.dest_path+'/'+template.destination,parms));
+      render(target.base_path+'/'+template.template,parms,ejs.render(target.dest_path+'/'+template.destination,parms));
     }
   }
 
-  // Render the class templates
+  // Render the class target
   //
   for(var cni=0;cni<meta_model.classes.class_names.length;cni++) {
     var class_name = meta_model.classes.class_names[cni];
-    console.log(class_name);
-    for(var ti=0;ti<templates.class_templates.length;ti++) {
-      var template = templates.class_templates[ti];
+    for(var ti=0;ti<target.class_templates.length;ti++) {
+      var template = target.class_templates[ti];
       var parms = {settings:settings,meta_model:meta_model,class_name:class_name};
-      render(templates.base_path+'/'+template.template,parms,ejs.render(templates.dest_path+'/'+template.destination,parms));
+      render(target.base_path+'/'+template.template,parms,ejs.render(target.dest_path+'/'+template.destination,parms));
     }
   }
 }

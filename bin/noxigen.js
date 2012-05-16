@@ -17,7 +17,7 @@ var eol = 'win32' == os.platform() ? '\r\n' : '\n'
 //
 var settings_template = [
   ,'module.exports = {'
-  ,'  templates : {'
+  ,'  targets : {'
   ,'  }'
   ,'}'
 ].join(eol);
@@ -94,21 +94,21 @@ generate_project = function() {
   var modules_fn = path.join(process.env.PWD,'.noxigen','modules.js');
   settings.modules = require(modules_fn).noxigen_modules;
     
-    
   // Validate the settings and generate the meta-model  
   //  
   var meta_model = noxigen.build_meta_model(settings);
 
-  // Process the templates settings
+  // Process each of the targets
   //
-  
-  //var templates = require('../templates/debug/');
-  //templates.base_path = path.resolve(__dirname,'../templates/debug');
-  //templates.dest_path = process.env.PWD;
-  
-  // Generate the templates using the meta-model
-  //
-  //noxigen.generate_templates(meta_model,settings,templates);  
+  var target_keys = Object.keys(settings.targets);
+  for(var tki=0;tki<target_keys.length;tki++) {
+    var target_key = target_keys[tki];
+    var target = require(path.join('../targets/',target_key));
+    target.base_path = path.resolve(__dirname,path.join('../targets',target_key));
+    target.dest_path = process.env.PWD;
+
+    noxigen.generate(meta_model,settings,target);  
+  }
 }
 
 
