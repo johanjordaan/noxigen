@@ -9,10 +9,23 @@ var program = require('commander');
 var pkg = require('../package.json');
 var ejs = require('ejs');
 var os = require('os');
+var winston = require('winston');
 
 var version = pkg.version;
 var eol = 'win32' == os.platform() ? '\r\n' : '\n'
 
+// Logging setup
+//
+var log = new (winston.Logger)({
+  transports: [
+    new winston.transports.Console({level:'error'})
+  ]
+});
+var log_verbose = function(option){
+  if(option == true)
+    log.transports.console.level = 'info';
+}
+ 
 // Commands
 //
 var settings_template = [
@@ -39,7 +52,9 @@ var module_template = [
 ].join(eol);
 
 
-start_project = function(project_name) {
+start_project = function(project_name,options) {
+  log_verbose(options.verbose);
+  log.info('Starting new project ['+project_name+'].');
   var project_path = path.join('.',project_name);
   path.exists(project_path,function(exists) {
     if(exists) throw '['+project_name+'] already exists';
@@ -52,9 +67,14 @@ start_project = function(project_name) {
 }
 
 // Todo : Add check for already existing modules
-add_module = function(module_name,location) {
+add_module = function(module_name,location,options) {
+  log_verbose(options.verbose);
+
   if(typeof(location) == 'undefined')
     location = path.join(process.env.PWD,'modules');
+
+  log.info('Adding module ['+module_name+'] at ['+location+']');
+
   var noxigen_path = path.join(process.env.PWD,'.noxigen');
   path.exists(noxigen_path,function(exists) {
     if(!exists) throw 'This is not a noxigen project';
@@ -70,8 +90,11 @@ add_module = function(module_name,location) {
       
       // Create the module if it does not already exist
       //
-      path.exists(path.join(location,module_name),function(exists) {
-        if(exists) return;
+      path.exists(path.join(location,module_name+'.js'),function(exists) {
+        if(exists) {
+          log.info('Module ['+module_name+'] already exists. Leaving existing file untouched.');
+          return;
+        }
         fs.writeFileSync(path.join(location,module_name+'.js'),ejs.render(module_template,{module_name:module_name}));
       });    
       
@@ -83,7 +106,10 @@ remove_module = function(module_name,force_delete) {
   console.log('Removing --',module_name,'with',force_delete);
 }
 
-generate_project = function() {
+generate_project = function(options) {
+  log_verbose(options.verbose);
+  log.info('Generating project targets.');
+
   // Include the settings file
   //
   var settings_fn = path.join(process.env.PWD,'settings.js');
@@ -100,11 +126,11 @@ generate_project = function() {
 
   // Process each of the targets
   //
-  var target_keys = Object.keys(settings.targets);
-  for(var tki=0;tki<target_keys.length;tki++) {
-    var target_key = target_keys[tki];
-    var target = require(path.join('../targets/',target_key));
-    target.base_path = path.resolve(__dirname,path.join('../targets',target_key));
+  for(var ti=0;ti<settings.targets.length;ti++) {
+    var target_name = settings.targets[ti].name;
+    log.info('Generating target ['+target_name+']');
+    var target = require(path.join('../targets/',target_name));
+    target.base_path = path.resolve(__dirname,path.join('../targets',target_name));
     target.dest_path = process.env.PWD;
 
     noxigen.generate(meta_model,settings,target);  
@@ -122,21 +148,25 @@ program
 program
   .command('startproject <project_name>')
   .description(' starts a new noxigen project')
+  .option('-v, --verbose','Switch verbose status reporing on')
   .action(start_project);
 
 program
   .command('addmodule <module_name> [location]')
   .description(' add a new module to the project')
+  .option('-v, --verbose','Switch verbose status reporing on')
   .action(add_module);
 
 program
   .command('removemodule <module_name>')
   .description(' removes a module from the project')
+  .option('-v, --verbose','Switch verbose status reporing on')
   .action(add_module);
   
 program
   .command('generate')
   .description(' generate the project')
+  .option('-v, --verbose','Switch verbose status reporing on')
   .action(generate_project);
 
 program.parse(process.argv);
