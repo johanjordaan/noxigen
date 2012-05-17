@@ -30,8 +30,9 @@ var log_verbose = function(option){
 //
 var settings_template = [
   ,'module.exports = {'
-  ,'  targets : {'
-  ,'  }'
+  ,'  targets : ['
+  ,'    //{ name : \'debug\' },' 
+  ,'  ]'
   ,'}'
 ].join(eol);
 
@@ -106,6 +107,39 @@ remove_module = function(module_name,force_delete) {
   console.log('Removing --',module_name,'with',force_delete);
 }
 
+
+load_targets = function() {
+  var files = fs.readdirSync('../targets/');
+  var targets = {};
+  for(var fi=0;fi<files.length;fi++) {
+    var target_name = files[fi];
+    var fn = path.join('../targets/',target_name);
+    var stats = fs.statSync(fn);
+    if(stats.isDirectory()) {
+      log.info('['+target_name+'] at ['+fn+']');
+      targets[target_name] = require(fn);
+      targets[target_name].base_path = path.resolve(__dirname,path.join('../targets',target_name));
+      targets[target_name].dest_path = process.env.PWD;
+    }
+  }
+  return targets;
+} 
+
+list_targets = function(options) {
+  log_verbose(options.verbose);
+  log.info('Listing targets.');
+
+  var targets = load_targets();
+
+  var target_keys = Object.keys(targets);
+  for(var ti=0;ti<target_keys.length;ti++) {
+    var target = target_keys[ti];
+    console.log(target+' - '+targets[target].description);
+  }
+}
+
+
+
 generate_project = function(options) {
   log_verbose(options.verbose);
   log.info('Generating project targets.');
@@ -124,14 +158,16 @@ generate_project = function(options) {
   //  
   var meta_model = noxigen.build_meta_model(settings);
 
+  // Retrieve all the valid targets
+  //
+  var targets = load_targets();
+  
   // Process each of the targets
   //
   for(var ti=0;ti<settings.targets.length;ti++) {
     var target_name = settings.targets[ti].name;
     log.info('Generating target ['+target_name+']');
-    var target = require(path.join('../targets/',target_name));
-    target.base_path = path.resolve(__dirname,path.join('../targets',target_name));
-    target.dest_path = process.env.PWD;
+    var target = targets[target_name];
 
     noxigen.generate(meta_model,settings,target);  
   }
@@ -162,6 +198,12 @@ program
   .description(' removes a module from the project')
   .option('-v, --verbose','Switch verbose status reporing on')
   .action(add_module);
+  
+program
+  .command('listtargets')
+  .description(' list available targets for the project')
+  .option('-v, --verbose','Switch verbose status reporing on')
+  .action(list_targets);
   
 program
   .command('generate')

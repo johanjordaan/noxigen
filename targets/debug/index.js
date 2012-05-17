@@ -1,4 +1,5 @@
 module.exports =  {
+  description : 'A debug target.',
   main_templates : [
     { template:'main.ejs' , destination:'main.txt' }
   ],
