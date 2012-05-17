@@ -3,6 +3,7 @@
 fs = require('fs');
 path = require('path');
 ejs = require('ejs');
+mkdirp = require('mkdirp');
 
 IntField = function() {
   this._type = 'IntField'
@@ -78,15 +79,18 @@ exports.build_meta_model = build_meta_model = function(settings) {
   return {modules:modules,classes:classes};
 } 
 
-exports.generate = generate = function(meta_model,settings,target) {
+exports.generate = generate = function(meta_model,settings,target,target_parameters) {
   // Render the main target
   //
   for(var ti=0;ti<target.main_templates.length;ti++) {
     var template = target.main_templates[ti];
     var parms = {settings:settings,meta_model:meta_model};
-    render(target.base_path+'/'+template.template,parms,ejs.render(target.dest_path+'/'+template.destination,parms));
+    var destination = path.join(target.project_base_path,ejs.render(template.destination,{parameters:target_parameters}));
+    mkdirp(path.dirname(destination),function() {
+      render(path.join(target.template_base_path,template.template),parms,destination);
+    });
   }
-  
+
   // Render the modules target
   //
   for(var mni=0;mni<meta_model.modules.module_names.length;mni++) {
@@ -95,7 +99,10 @@ exports.generate = generate = function(meta_model,settings,target) {
       var template = target.module_templates[ti];
       var module = meta_model.modules[module_name];
       var parms = {settings:settings,meta_model:meta_model,module_name:module_name};
-      render(target.base_path+'/'+template.template,parms,ejs.render(target.dest_path+'/'+template.destination,parms));
+      var destination = path.join(target.project_base_path,ejs.render(template.destination,{parameters:target_parameters,module_name:module_name}));
+      mkdirp(path.dirname(destination),function() {
+        render(path.join(target.template_base_path,template.template),parms,destination);
+      });
     }
   }
 
@@ -106,7 +113,10 @@ exports.generate = generate = function(meta_model,settings,target) {
     for(var ti=0;ti<target.class_templates.length;ti++) {
       var template = target.class_templates[ti];
       var parms = {settings:settings,meta_model:meta_model,class_name:class_name};
-      render(target.base_path+'/'+template.template,parms,ejs.render(target.dest_path+'/'+template.destination,parms));
+      var destination = path.join(target.project_base_path,ejs.render(template.destination,{parameters:target_parameters,class_name:class_name}));
+      mkdirp(path.dirname(destination),function() {
+        render(path.join(target.template_base_path,template.template),parms,destination);
+      });
     }
   }
 }

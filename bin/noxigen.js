@@ -109,17 +109,17 @@ remove_module = function(module_name,force_delete) {
 
 
 load_targets = function() {
-  var files = fs.readdirSync('../targets/');
+  var files = fs.readdirSync(path.join(__dirname,'../targets/'));
   var targets = {};
   for(var fi=0;fi<files.length;fi++) {
     var target_name = files[fi];
-    var fn = path.join('../targets/',target_name);
+    var fn = path.join(__dirname,'../targets/',target_name);
     var stats = fs.statSync(fn);
     if(stats.isDirectory()) {
       log.info('['+target_name+'] at ['+fn+']');
       targets[target_name] = require(fn);
-      targets[target_name].base_path = path.resolve(__dirname,path.join('../targets',target_name));
-      targets[target_name].dest_path = process.env.PWD;
+      targets[target_name].template_base_path = path.resolve(__dirname,path.join('../targets',target_name));
+      targets[target_name].project_base_path = process.env.PWD;
     }
   }
   return targets;
@@ -138,6 +138,22 @@ list_targets = function(options) {
   }
 }
 
+view_target = function(target_name,options) {
+  log_verbose(options.verbose);
+  log.info('Viewing target ['+target_name+'].');
+
+  var targets = load_targets();
+  var target=targets[target_name];
+  
+  console.log('Name        : '+target_name);
+  console.log('Description : '+target.description);
+  var parameter_keys = Object.keys(target.parameters);
+  console.log('Parameters  : ');
+  for(var pi=0;pi<parameter_keys.length;pi++) {
+    var parameter_name = parameter_keys[pi];
+    console.log('  '+parameter_name+' - '+target.parameters[parameter_name]);
+  }
+}
 
 
 generate_project = function(options) {
@@ -169,7 +185,7 @@ generate_project = function(options) {
     log.info('Generating target ['+target_name+']');
     var target = targets[target_name];
 
-    noxigen.generate(meta_model,settings,target);  
+    noxigen.generate(meta_model,settings,target,settings.targets[ti]);  
   }
 }
 
@@ -204,6 +220,13 @@ program
   .description(' list available targets for the project')
   .option('-v, --verbose','Switch verbose status reporing on')
   .action(list_targets);
+
+program
+  .command('viewtarget <target_name>')
+  .description(' view target details')
+  .option('-v, --verbose','Switch verbose status reporing on')
+  .action(view_target);
+
   
 program
   .command('generate')

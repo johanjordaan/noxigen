@@ -10,7 +10,8 @@
     "ejs"          : "*",
     "chai"         : "*",
     "commander"    : "*",
-    "winston"      : "*" 
+    "winston"      : "*",
+    "mkdirp"       : "*"  
   },
   "lib"            : ".",
   "main"           : "noxigen.js",
